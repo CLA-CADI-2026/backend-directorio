@@ -1,0 +1,441 @@
+openapi: 3.0.0
+info:
+  title: API Directorio
+  description: API REST para gestión de materias y docentes
+  version: 1.0.0
+servers:
+  - url: http://localhost:3000/api/v1
+    description: Servidor de desarrollo
+ 
+components:
+  schemas:
+    Error:
+      type: object
+      required:
+        - code
+        - message
+      properties:
+        code:
+          type: string
+          description: Código de error
+          example: "RESOURCE_NOT_FOUND"
+        message:
+          type: string
+          description: Mensaje descriptivo del error
+          example: "El recurso solicitado no existe"
+    Materia:
+      type: object
+      required:
+        - id
+        - clave
+        - nombre
+      properties:
+        id:
+          type: integer
+          description: ID autogenerado de la materia
+          example: 1
+        clave:
+          type: string
+          description: Clave única de la materia
+          example: "TC1028"
+        nombre:
+          type: string
+          description: Nombre de la materia
+          example: "Programación en Python"
+        creditos:
+          type: integer
+          description: Número de créditos
+          example: 5
+          nullable: true
+    MateriaInput:
+      type: object
+      required:
+        - clave
+        - nombre
+      properties:
+        clave:
+          type: string
+          description: Clave única de la materia
+          example: "TC1028"
+        nombre:
+          type: string
+          description: Nombre de la materia
+          example: "Programación en Python"
+        creditos:
+          type: integer
+          description: Número de créditos
+          example: 5
+          nullable: true
+    Docente:
+      type: object
+      required:
+        - id
+        - nombre
+        - email
+      properties:
+        id:
+          type: integer
+          description: ID autogenerado del docente
+          example: 1
+        nombre:
+          type: string
+          description: Nombre completo del docente
+          example: "María González"
+        email:
+          type: string
+          description: Email único del docente
+          example: "maria.gonzalez@ejemplo.com"
+        materia_id:
+          type: integer
+          description: ID de la materia que imparte
+          example: 1
+          nullable: true
+    DocenteInput:
+      type: object
+      required:
+        - nombre
+        - email
+      properties:
+        nombre:
+          type: string
+          description: Nombre completo del docente
+          example: "María González"
+        email:
+          type: string
+          description: Email único del docente
+          example: "maria.gonzalez@ejemplo.com"
+        materia_id:
+          type: integer
+          description: ID de la materia que imparte
+          example: 1
+          nullable: true
+ 
+  responses:
+    BadRequest:
+      description: Solicitud inválida
+      content:
+        application/json:
+          schema:
+            $ref: '#/components/schemas/Error'
+          example:
+            code: "VALIDATION_ERROR"
+            message: "Datos de entrada inválidos"
+    NotFound:
+      description: Recurso no encontrado
+      content:
+        application/json:
+          schema:
+            $ref: '#/components/schemas/Error'
+          example:
+            code: "RESOURCE_NOT_FOUND"
+            message: "El recurso solicitado no existe"
+    InternalServerError:
+      description: Error interno del servidor
+      content:
+        application/json:
+          schema:
+            $ref: '#/components/schemas/Error'
+          example:
+            code: "INTERNAL_ERROR"
+            message: "Error interno del servidor"
+ 
+tags:
+  - name: Materias
+    description: Operaciones CRUD para materias
+  - name: Docentes
+    description: Operaciones CRUD para docentes
+ 
+paths:
+  /materias:
+    get:
+      tags:
+        - Materias
+      summary: Obtener todas las materias
+      operationId: getMaterias
+      responses:
+        '200':
+          description: Lista de materias obtenida exitosamente
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  $ref: '#/components/schemas/Materia'
+              example:
+                - id: 1
+                  clave: "TC1028"
+                  nombre: "Programación en Python"
+                  creditos: 5
+                - id: 2
+                  clave: "TC1004B"
+                  nombre: "Implementación de IoT"
+                  creditos: 4
+        '500':
+          $ref: '#/components/responses/InternalServerError'
+    post:
+      tags:
+        - Materias
+      summary: Crear una nueva materia
+      operationId: createMateria
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/MateriaInput'
+            example:
+              clave: "TC3002A"
+              nombre: "Desarrollo de Aplicaciones Web"
+              creditos: 5
+      responses:
+        '201':
+          description: Materia creada exitosamente
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Materia'
+              example:
+                id: 4
+                clave: "TC3002A"
+                nombre: "Desarrollo de Aplicaciones Web"
+                creditos: 5
+        '400':
+          $ref: '#/components/responses/BadRequest'
+        '500':
+          $ref: '#/components/responses/InternalServerError'
+ 
+  /materias/{id}:
+    get:
+      tags:
+        - Materias
+      summary: Obtener una materia por ID
+      operationId: getMateriaById
+      parameters:
+        - name: id
+          in: path
+          required: true
+          schema:
+            type: integer
+          description: ID de la materia
+      responses:
+        '200':
+          description: Materia encontrada
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Materia'
+              example:
+                id: 1
+                clave: "TC1028"
+                nombre: "Programación en Python"
+                creditos: 5
+        '404':
+          $ref: '#/components/responses/NotFound'
+        '500':
+          $ref: '#/components/responses/InternalServerError'
+    put:
+      tags:
+        - Materias
+      summary: Actualizar una materia existente
+      operationId: updateMateria
+      parameters:
+        - name: id
+          in: path
+          required: true
+          schema:
+            type: integer
+          description: ID de la materia a actualizar
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/MateriaInput'
+            example:
+              clave: "TC1028"
+              nombre: "Programación en Python Avanzado"
+              creditos: 6
+      responses:
+        '200':
+          description: Materia actualizada exitosamente
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Materia'
+              example:
+                id: 1
+                clave: "TC1028"
+                nombre: "Programación en Python Avanzado"
+                creditos: 6
+        '400':
+          $ref: '#/components/responses/BadRequest'
+        '404':
+          $ref: '#/components/responses/NotFound'
+        '500':
+          $ref: '#/components/responses/InternalServerError'
+    delete:
+      tags:
+        - Materias
+      summary: Eliminar una materia
+      operationId: deleteMateria
+      parameters:
+        - name: id
+          in: path
+          required: true
+          schema:
+            type: integer
+          description: ID de la materia a eliminar
+      responses:
+        '204':
+          description: Materia eliminada exitosamente
+        '404':
+          $ref: '#/components/responses/NotFound'
+        '500':
+          $ref: '#/components/responses/InternalServerError'
+ 
+  /docentes:
+    get:
+      tags:
+        - Docentes
+      summary: Obtener todos los docentes
+      operationId: getDocentes
+      responses:
+        '200':
+          description: Lista de docentes obtenida exitosamente
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  $ref: '#/components/schemas/Docente'
+              example:
+                - id: 1
+                  nombre: "María González"
+                  email: "maria.gonzalez@ejemplo.com"
+                  materia_id: 1
+                - id: 2
+                  nombre: "Juan Pérez"
+                  email: "juan.perez@ejemplo.com"
+                  materia_id: 2
+        '500':
+          $ref: '#/components/responses/InternalServerError'
+    post:
+      tags:
+        - Docentes
+      summary: Crear un nuevo docente
+      operationId: createDocente
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/DocenteInput'
+            example:
+              nombre: "Ana Martínez"
+              email: "ana.martinez@ejemplo.com"
+              materia_id: 3
+      responses:
+        '201':
+          description: Docente creado exitosamente
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Docente'
+              example:
+                id: 3
+                nombre: "Ana Martínez"
+                email: "ana.martinez@ejemplo.com"
+                materia_id: 3
+        '400':
+          $ref: '#/components/responses/BadRequest'
+        '500':
+          $ref: '#/components/responses/InternalServerError'
+ 
+  /docentes/{id}:
+    get:
+      tags:
+        - Docentes
+      summary: Obtener un docente por ID
+      operationId: getDocenteById
+      parameters:
+        - name: id
+          in: path
+          required: true
+          schema:
+            type: integer
+          description: ID del docente
+      responses:
+        '200':
+          description: Docente encontrado
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Docente'
+              example:
+                id: 1
+                nombre: "María González"
+                email: "maria.gonzalez@ejemplo.com"
+                materia_id: 1
+        '404':
+          $ref: '#/components/responses/NotFound'
+        '500':
+          $ref: '#/components/responses/InternalServerError'
+    put:
+      tags:
+        - Docentes
+      summary: Actualizar un docente existente
+      operationId: updateDocente
+      parameters:
+        - name: id
+          in: path
+          required: true
+          schema:
+            type: integer
+          description: ID del docente a actualizar
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/DocenteInput'
+            example:
+              nombre: "María González Ramírez"
+              email: "maria.gonzalez@ejemplo.com"
+              materia_id: 2
+      responses:
+        '200':
+          description: Docente actualizado exitosamente
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Docente'
+              example:
+                id: 1
+                nombre: "María González Ramírez"
+                email: "maria.gonzalez@ejemplo.com"
+                materia_id: 2
+        '400':
+          $ref: '#/components/responses/BadRequest'
+        '404':
+          $ref: '#/components/responses/NotFound'
+        '500':
+          $ref: '#/components/responses/InternalServerError'
+    delete:
+      tags:
+        - Docentes
+      summary: Eliminar un docente
+      operationId: deleteDocente
+      parameters:
+        - name: id
+          in: path
+          required: true
+          schema:
+            type: integer
+          description: ID del docente a eliminar
+      responses:
+        '204':
+          description: Docente eliminado exitosamente
+        '404':
+          $ref: '#/components/responses/NotFound'
+        '500':
+          $ref: '#/components/responses/InternalServerError'

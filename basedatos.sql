@@ -21,3 +21,5 @@ INSERT INTO materias (clave, nombre, creditos) VALUES
   ('TC1028', 'Programación en Python', 5),
   ('TC1004B', 'Implementación de IoT', 4),
   ('TC2005B', 'Construcción de Software', 5);
+
+  
