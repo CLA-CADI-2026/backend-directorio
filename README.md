@@ -6,6 +6,10 @@
 * Roberto Martínez Román
 
 
+## Video con demostración del funcionamiento
+[Demo Equipo 6](https://youtu.be/-whUfUK38-s)
+
+
 ## 1. Clonar el repositorio
 
 ```bash
